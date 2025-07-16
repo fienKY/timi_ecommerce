@@ -58,156 +58,159 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getFirestore, collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDi38gj03rQeoXqilbjaF43rgPAL2vYtwU",
-      authDomain: "timi-ecommerce-v2.firebaseapp.com",
-      projectId: "timi-ecommerce-v2",
-      storageBucket: "timi-ecommerce-v2.appspot.com",
-      messagingSenderId: "463474123257",
-      appId: "1:463474123257:web:033f324ef4ade6de379d28"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDi38gj03rQeoXqilbjaF43rgPAL2vYtwU",
+    authDomain: "timi-ecommerce-v2.firebaseapp.com",
+    projectId: "timi-ecommerce-v2",
+    storageBucket: "timi-ecommerce-v2.appspot.com",
+    messagingSenderId: "463474123257",
+    appId: "1:463474123257:web:033f324ef4ade6de379d28"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth();
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth();
 
-    const payBtn = document.getElementById("confirm-payment");
-    const addressBox = document.getElementById("address-info");
+  const payBtn = document.getElementById("confirm-payment");
+  const addressBox = document.getElementById("address-info");
 
-    function getOrderIdFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("orderId");
+  function getOrderIdFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("orderId");
+  }
+
+  function displayAddress(addr) {
+    addressBox.textContent = `${addr.name} | ${addr.phone} | ${addr.address} (${addr.notes || "No label"})`;
+  }
+
+  const resumedOrderIdFromURL = getOrderIdFromURL();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      alert("Please log in to continue.");
+      window.location.href = "login.html";
+      return;
     }
 
-    function displayAddress(addr) {
-      addressBox.textContent = `${addr.name} | ${addr.phone} | ${addr.address} (${addr.notes || "No label"})`;
-    }
+    let resumedOrderId = resumedOrderIdFromURL;
+    let data;
 
-    const resumedOrderIdFromURL = getOrderIdFromURL();
+    if (resumedOrderId) {
+      // Resume existing unpaid order
+      const q = query(
+        collection(db, "orders"),
+        where("orderId", "==", resumedOrderId),
+        where("email", "==", user.email)
+      );
+      const snapshot = await getDocs(q);
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        alert("Please log in to continue.");
-        window.location.href = "login.html";
+      if (snapshot.empty) {
+        alert("Order not found or already paid.");
+        payBtn.disabled = true;
         return;
       }
 
-      let resumedOrderId = resumedOrderIdFromURL;
-      let data;
-
-      if (resumedOrderId) {
-        // Resume existing unpaid order
-        const q = query(
-          collection(db, "orders"),
-          where("orderId", "==", resumedOrderId),
-          where("email", "==", user.email)
-        );
-        const snapshot = await getDocs(q);
-
-        if (snapshot.empty) {
-          alert("Order not found or already paid.");
-          payBtn.disabled = true;
-          return;
-        }
-
-        data = snapshot.docs[0].data();
-        displayAddress({
-          name: data.customerName,
-          phone: data.customerPhone,
-          address: data.customerAddress,
-          notes: "-"
-        });
-      } else {
-        // New order from cart
-        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-        if (cart.length === 0) {
-          alert("Your cart is empty.");
-          payBtn.disabled = true;
-          return;
-        }
-
-        const addresses = JSON.parse(localStorage.getItem("userAddresses") || "[]");
-        const selectedIndex = parseInt(localStorage.getItem("selectedAddressIndex") || 0);
-        const addr = addresses[selectedIndex];
-
-        if (!addr) {
-          alert("No address selected. Please go back to cart and choose address.");
-          window.location.href = "cart.html";
-          return;
-        }
-
-        displayAddress(addr);
-
-        resumedOrderId = `TMI${Math.floor(1000 + Math.random() * 9000)}`;
-        const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-        await addDoc(collection(db, "orders"), {
-          orderId: resumedOrderId,
-          userId: user.uid,
-          customerName: addr.name,
-          customerPhone: addr.phone,
-          customerAddress: addr.address,
-          email: user.email,
-          products: cart,
-          total: total.toFixed(2),
-          paymentMethod: "ToyyibPay",
-          status: {
-            payment: "Pending",
-            delivery: "Not started"
-          },
-          timestamp: new Date()
-        });
-
-        data = {
-          customerName: addr.name,
-          customerPhone: addr.phone,
-          customerAddress: addr.address,
-          total: total.toFixed(2),
-          products: cart
-        };
-
-        localStorage.removeItem("cart");
+      data = snapshot.docs[0].data();
+      displayAddress({
+        name: data.customerName,
+        phone: data.customerPhone,
+        address: data.customerAddress,
+        notes: "-"
+      });
+    } else {
+      // New order from cart
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      if (cart.length === 0) {
+        alert("Your cart is empty.");
+        payBtn.disabled = true;
+        return;
       }
 
-      payBtn.onclick = async () => {
-        try {
-          const res = await fetch("createBill.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
-              name: data.customerName,
-              email: user.email,
-              phone: data.customerPhone,
-              total: Math.round(parseFloat(data.total) * 100),
-              orderId: resumedOrderId
-            })
-          });
+      const addresses = JSON.parse(localStorage.getItem("userAddresses") || "[]");
+      const selectedIndex = parseInt(localStorage.getItem("selectedAddressIndex") || 0);
+      const addr = addresses[selectedIndex];
 
-          const text = await res.text();
-          let parsed;
-          try {
-            parsed = JSON.parse(text);
-          } catch (err) {
-            alert("Invalid response from ToyyibPay.");
-            console.error(text);
-            return;
-          }
+      if (!addr) {
+        alert("No address selected. Please go back to cart and choose address.");
+        window.location.href = "cart.html";
+        return;
+      }
 
-          if (parsed[0] && parsed[0].BillCode) {
-            window.location.href = window.location.href = `https://toyyibpay.com/${parsed[0].BillCode}`;
-          } else {
-            alert("Failed to create payment. Try again.");
-          }
-        } catch (err) {
-          console.error(err);
-          alert("Payment error occurred.");
-        }
+      displayAddress(addr);
+
+      resumedOrderId = `TMI${Math.floor(1000 + Math.random() * 9000)}`;
+      const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+      await addDoc(collection(db, "orders"), {
+        orderId: resumedOrderId,
+        userId: user.uid,
+        customerName: addr.name,
+        customerPhone: addr.phone,
+        customerAddress: addr.address,
+        email: user.email,
+        products: cart,
+        total: total.toFixed(2),
+        paymentMethod: "ToyyibPay",
+        status: {
+          payment: "Pending",
+          delivery: "Not started"
+        },
+        timestamp: new Date()
+      });
+
+      data = {
+        customerName: addr.name,
+        customerPhone: addr.phone,
+        customerAddress: addr.address,
+        total: total.toFixed(2),
+        products: cart
       };
-    });
-  </script>
+
+      localStorage.removeItem("cart");
+    }
+
+    payBtn.onclick = async () => {
+      try {
+        const res = await fetch("createBill.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            name: data.customerName,
+            email: user.email,
+            phone: data.customerPhone,
+            total: Math.round(parseFloat(data.total) * 100),
+            orderId: resumedOrderId
+          })
+        });
+
+        const text = await res.text();
+        console.log("Raw ToyyibPay response:", text);
+
+        let parsed;
+        try {
+          parsed = JSON.parse(text);
+        } catch (err) {
+          alert("Invalid response from ToyyibPay.");
+          console.error("Parsing error:", err, "Raw response:", text);
+          return;
+        }
+
+        if (Array.isArray(parsed) && parsed[0]?.BillCode) {
+          window.location.href = `https://toyyibpay.com/${parsed[0].BillCode}`;
+        } else {
+          alert("Failed to create payment. Please try again.");
+          console.error("ToyyibPay returned:", parsed);
+        }
+      } catch (err) {
+        console.error("Network or payment error:", err);
+        alert("Payment error occurred.");
+      }
+    };
+  });
+</script>
 </body>
 </html>
