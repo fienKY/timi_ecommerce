@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Products - TIMI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      padding: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    @media (max-width: 1000px) {
+      .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .product-card {
+      background: #9d8a7c;
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .product-info {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .btn {
+      background: #bdac96;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .color-circle {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #333;
+  transition: 0.2s ease;
+}
+
+.color-circle.selected {
+  outline: 3px solid #fd8774;
+  outline-offset: 2px;
+}
+
+    #logout-btn {
+  background: white;
+  color: black;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+    /* Modal */
+    #product-modal, #size-chart-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-content {
+  background: white;
+  padding: 25px 25px 25px 25px;
+  padding-top: 50px; 
+  border-radius: 10px;
+  max-width: 500px;
+  margin: 60px auto;
+  position: relative; 
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  color: #333;
+}
+
+.close-modal:hover {
+  color: red;
+  transform: scale(1.2);
+}
+
+  .wishlist-btn {
+  color: #ff4d4d;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.wishlist-btn:hover {
+  transform: scale(1.3);
+}
+
+    #size-chart-modal table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    #size-chart-modal th, #size-chart-modal td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+
+    select, .modal-content button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+  <div class="header-left">
+    <a href="index.html"><h1>T I M I</h1></a>
+  </div>
+
+  <nav class="nav-center">
+    <ul>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="cart.html">Cart</a></li>
+      <li><a href="wishlist.html">Wishlist</a></li>
+      <li><a href="trackingOrder.html">Track Order</a></li>
+    </ul>
+  </nav>
+
+  <div class="header-right">
+    <span id="user-name">Guest</span>
+    <a href="settings.html" id="settings-link" style="color:white; text-decoration:none;">⚙️ Settings</a>
+    <button id="auth-btn">Log in</button>
+  </div>
+</header>
+
+  <main>
+    <section class="hero">
+      <h2>Our Products</h2>
+      <p>Explore a variety of traditional wear, from kurta to baju melayu, perfect for any occasion.</p>
+    </section>
+
+    <section class="featured-products">
+      <h2>Our Traditional Collection</h2>
+      <div class="products-grid">
+        <article class="product-card" data-name="Kurta Ironless" data-price="35" data-image="images/blackKurtaIronless.png">
+          <img src="images/blackKurtaIronless.png" alt="Kurta Ironless" class="product-image" />
+          <div class="product-info">
+            <h3>Kurta Ironless</h3>
+            <p>RM 35.00</p>
+             <div style="display: flex; justify-content: center; align-items: center; gap: 10px;"></div>
+            <button class="btn view-details">View Details</button>
+          </div>
+        </article>
+
+        <article class="product-card" data-name="Kurta Pakistani" data-price="40" data-image="images/KurtaLabuhBlack.png">
+          <img src="images/KurtaLabuhBlack.png" alt="Kurta Pakistani" class="product-image" />
+          <div class="product-info">
+            <h3>Kurta Pakistani</h3>
+            <p>RM 45.00</p>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 10px;"></div>
+            <button class="btn view-details">View Details</button>
+          </div>
+        </article>
+
+        <article class="product-card" data-name="Kurta Teluk Belanga" data-price="55.00" data-image="images/BrownKurtaTB.png">
+          <img src="images/BrownKurtaTB.png" alt="Kurta Teluk Belanga" class="product-image" />
+          <div class="product-info">
+            <h3>Kurta Teluk Belanga</h3>
+            <p>RM 55.00</p>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 10px;"></div>
+            <button class="btn view-details">View Details</button>
+          </div>
+        </article>
+
+        <article class="product-card" data-name="Samping" data-price="30.00" data-image="images/samping.png">
+          <img src="images/samping.png" alt="Samping" class="product-image" />
+          <div class="product-info">
+            <h3>Samping</h3>
+            <p>RM 30.00</p>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 10px;"></div>
+            <button class="btn view-details">View Details</button>
+          </div>
+        </article>
+
+        <article class="product-card" data-name="Baju Melayu Teluk Belanga" data-price="48.20" data-image="images/BMTBblack.png">
+    <img src="images/BMTBblack.png" alt="BMTB" class="product-image" />
+    <div class="product-info">
+      <h3>Baju Melayu Teluk Belanga</h3>
+      <p>RM 48.20</p>
+      <div style="display: flex; justify-content: center; align-items: center; gap: 10px;"></div>
+            <button class="btn view-details">View Details</button>
+    </div>
+  </article>
+
+        <article class="product-card" data-name="Baju Melayu Cekak Musang" data-price="50.00" data-image="images/BMCMblack.png">
+    <img src="images/BMCMblack.png" alt="BMCM" class="product-image" />
+    <div class="product-info">
+      <h3>Baju Melayu Cekak Musang</h3>
+      <p>RM 50.00</p>
+      <div style="display: flex; justify-content: center; align-items: center; gap: 10px;"></div>
+            <button class="btn view-details">View Details</button>
+    </div>
+  </article>
+
+        <article class="product-card" data-name="Baju Melayu Satin" data-price="55.00" data-image="images/BMSmidnightpurple.png">
+    <img src="images/BMSmidnightpurple.png" alt="BMS" class="product-image" />
+    <div class="product-info">
+      <h3>Baju Melayu Satin</h3>
+      <p>RM 55.00</p>
+      <div style="display: flex; justify-content: center; align-items: center; gap: 10px;"></div>
+            <button class="btn view-details">View Details</button>
+    </div>
+  </article>
+
+        <article class="product-card" data-name="Songkok" data-price="10.00" data-image="images/songkokBlack.png">
+    <img src="images/songkokBlack.png" alt="Songkok" class="product-image" />
+    <div class="product-info">
+      <h3>Songkok</h3>
+      <p>RM 10.00</p>
+      <div style="display: flex; justify-content: center; align-items: center; gap: 10px;"></div>
+            <button class="btn view-details">View Details</button>
+    </div>
+  </article>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 TIMI. All rights reserved.</p>
+  </footer>
+
+  <div id="product-modal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="document.getElementById('product-modal').style.display='none'">&times;</button>
+      <h3 id="modal-title">Product Name</h3>
+      <img id="modal-img" src="" alt="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;" />
+      <p id="modal-price">RM 0.00</p>
+
+      <label>Choose Color:</label>
+<div id="color-options" style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;"></div>
+
+      <label for="size">Choose Size:</label>
+      <select id="size">
+        <option>S</option>
+        <option>M</option>
+        <option>L</option>
+        <option>XL</option>
+      </select>
+
+      <div style="display: flex; gap: 10px; margin-top: 10px;">
+  <button id="add-to-cart-btn" class="btn">Add to Cart</button>
+  <button id="add-to-wishlist-btn" class="btn" style="background: crimson;">♡ Wishlist</button>
+</div>
+  </div>
+
+  <div id="size-chart-modal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="document.getElementById('size-chart-modal').style.display='none'">&times;</button>
+      <h3>Size Chart</h3>
+      <table>
+        <tr><th>Size</th><th>Chest (in)</th><th>Length (in)</th></tr>
+        <tr><td>S</td><td>36</td><td>28</td></tr>
+        <tr><td>M</td><td>38</td><td>29</td></tr>
+        <tr><td>L</td><td>40</td><td>30</td></tr>
+        <tr><td>XL</td><td>42</td><td>31</td></tr>
+      </table>
+    </div>
+  </div>
+
+<script>
+  const productCards = document.querySelectorAll('.view-details');
+  const modal = document.getElementById('product-modal');
+  const modalTitle = document.getElementById('modal-title');
+  const modalPrice = document.getElementById('modal-price');
+  const modalImg = document.getElementById('modal-img');
+  const sizeSelect = document.getElementById('size');
+  let selectedColor = "default";
+
+   const productImagesByColor = {
+    "Kurta Ironless": {
+      white: "images/whiteKurtaIronless.png",
+      black: "images/blackKurtaIronless.png",
+      blue: "images/blueKurtaIronless.png",
+      Grey: "images/GreyKurtaIronless.png",
+      Red: "images/RedKurtaIronless.png"
+    },
+    "Kurta Pakistani": {
+      white: "images/KurtaLabuhWhite.png",
+      black: "images/KurtaLabuhBlack.png",
+      blue: "images/KurtaLabuhBlue.png"
+    },
+    "Kurta Teluk Belanga": {
+      brown: "images/BrownKurtaTB.png",
+      darkblue: "images/DarkBlueTB.png",
+      DustyPink: "images/DustyPinkTB.png",
+      Grey: "images/GreyKurtaTB.png",
+      Maroon: "images/MaroonKurtaTB.png",
+      MintGreen: "images/MintGreenTB.png",
+    },
+    "Samping": {
+      black: "images/Samping.png",
+    },
+    "Baju Melayu Teluk Belanga": {
+      black: "images/BMTBblack.png",
+      babyblue: "images/BMTBbabyblue.png",
+      DustyPink: "images/BMTBDustyPink.png",
+      LilacPurple: "images/BMTBlilacpurple.png",
+      MidnightPuprle: "images/BMTBmidnightpurple.png",
+      Red: "images/BMTBred.png",
+    },
+    "Baju Melayu Cekak Musang": {
+      black: "images/BMCMblack.png",
+      babyblue: "images/BMCMbabyblue.png",
+      mustard: "images/BMCMmustard.png",
+    },
+    "Baju Melayu Satin": {
+      DustyPink: "images/BMSdustypink.png",
+      MidnightPuprle: "images/BMSmidnightpurple.png",
+      Maroon: "images/BMSmaroon.png",
+      mustard: "images/BMSmustard.png",
+    },
+    "Songkok": {
+      black: "images/songkokBlack.png",
+    },
+  };
+
+  const colorInfo = {
+  white: { name: "White", hex: "#ffffff" },
+  black: { name: "Black", hex: "#000000" },
+  maroon: { name: "Maroon", hex: "#800000" },
+  blue: { name: "Blue", hex: "#0000ff" },
+  brown: { name: "Brown", hex: "#8b4513" },
+  grey: { name: "Grey", hex: "#808080" },
+  pink: { name: "Dusty Pink", hex: "#d8a5b3" },
+  Green: { name: "Mint Green", hex: "#98ff98" },
+  Red: { name: "Red", hex: "#ff4d4d" },
+  Grey: { name: "Grey", hex: "#808080" },
+  darkblue: { name: "Dark Blue", hex: "#00008b" },
+  DustyPink: { name: "Dusty Pink", hex: "#d8a5b3" },
+  MintGreen: { name: "Mint Green", hex: "#98ff98" },
+  LilacPurple: { name: "Lilac Purple", hex: "#C8A2C8" },
+  MidnightPuprle: { name: "Midnight Purple", hex: "#4E1764" },
+  babyblue: { name: "Baby Blue", hex: "#89CFF0" },
+  mustard: { name: "Mustard", hex: "#FFDB58" },
+};
+
+  productCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const parent = card.closest('.product-card');
+      const name = parent.dataset.name;
+      const price = parent.dataset.price;
+      const img = parent.dataset.image;
+
+      modalTitle.textContent = name;
+      modalPrice.textContent = `RM ${parseFloat(price).toFixed(2)}`;
+      modalImg.src = img;
+      sizeSelect.value = 'S';
+      selectedColor = "default";
+
+      const colorOptions = document.getElementById('color-options');
+      colorOptions.innerHTML = '';
+
+      const colors = productImagesByColor[name] || {};
+      for (const color in colors) {
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.gap = '4px';
+
+        const btn = document.createElement('div');
+        btn.className = 'color-circle';
+        btn.style.backgroundColor = colorInfo[color]?.hex || color;
+        btn.setAttribute('data-color', color);
+
+        btn.addEventListener('click', () => {
+          modalImg.src = colors[color];
+          document.querySelectorAll('.color-circle').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedColor = color;
+        });
+
+        const label = document.createElement('span');
+        label.textContent = colorInfo[color]?.name || color;
+        label.style.fontSize = '12px';
+        label.style.color = '#333';
+
+        wrapper.appendChild(btn);
+        wrapper.appendChild(label);
+        colorOptions.appendChild(wrapper);
+      }
+
+      const firstColor = Object.keys(colors)[0];
+      if (firstColor) {
+        modalImg.src = colors[firstColor];
+        selectedColor = firstColor;
+        colorOptions.children[0].querySelector('.color-circle').click();
+      }
+
+      modal.style.display = 'block';
+    });
+  });
+
+  // ✅ ADD TO CART
+  document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+    const selectedSize = sizeSelect.value;
+
+    if (!selectedColor || selectedColor === "default") {
+      alert("⚠️ Please select a color before adding to cart.");
+      return;
+    }
+
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    const item = {
+      name: modalTitle.textContent,
+      price: parseFloat(modalPrice.textContent.replace("RM", "").trim()),
+      color: selectedColor,
+      size: selectedSize,
+      quantity: 1,
+      image: modalImg.src,
+      availableColors: Object.keys(productImagesByColor[modalTitle.textContent]) || [selectedColor]
+    };
+
+    cart.push(item);
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    alert(`✔️ Added to cart:\n${item.name}\nSize: ${item.size}\nColor: ${item.color}\nPrice: RM ${item.price.toFixed(2)}`);
+    modal.style.display = 'none';
+  });
+
+  // ✅ ADD TO WISHLIST
+  document.getElementById('add-to-wishlist-btn').addEventListener('click', () => {
+    const selectedSize = sizeSelect.value;
+
+    if (!selectedColor || selectedColor === "default") {
+      alert("⚠️ Please select a color before adding to wishlist.");
+      return;
+    }
+
+    const item = {
+      name: modalTitle.textContent,
+      price: parseFloat(modalPrice.textContent.replace("RM", "").trim()),
+      color: selectedColor,
+      size: selectedSize,
+      image: modalImg.src
+    };
+
+    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+
+    const exists = wishlist.some(
+      w => w.name === item.name && w.color === item.color && w.size === item.size
+    );
+
+    if (exists) {
+      alert("❌ Item already in wishlist!");
+      return;
+    }
+
+    wishlist.push(item);
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    alert(`❤️ Added to wishlist:\n${item.name}\nSize: ${item.size}\nColor: ${item.color}`);
+  });
+
+  window.onclick = function(event) {
+    if (event.target == modal) modal.style.display = "none";
+    if (event.target == document.getElementById('size-chart-modal')) {
+      document.getElementById('size-chart-modal').style.display = "none";
+    }
+  };
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDi38gj03rQeoXqilbjaF43rgPAL2vYtwU",
+  authDomain: "timi-ecommerce-v2.firebaseapp.com",
+  projectId: "timi-ecommerce-v2",
+  storageBucket: "timi-ecommerce-v2.appspot.com",
+  messagingSenderId: "463474123257",
+  appId: "1:463474123257:web:033f324ef4ade6de379d28",
+  measurementId: "G-REQ0J6L2C6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.addEventListener("DOMContentLoaded", () => {
+  const authBtn = document.getElementById("auth-btn");
+  const userNameDisplay = document.getElementById("user-name");
+
+  onAuthStateChanged(auth, (user) => {
+    const profile = JSON.parse(localStorage.getItem("userProfile")) || {};
+    const displayName = profile.name || "Guest";
+
+    if (user) {
+      userNameDisplay.textContent = ` ${displayName}`;
+      authBtn.textContent = "Log out";
+      authBtn.onclick = () => {
+        signOut(auth).then(() => {
+          window.location.href = "login.html";
+        });
+      };
+    } else {
+      userNameDisplay.textContent = "Guest";
+      authBtn.textContent = "Log in";
+      authBtn.onclick = () => {
+        window.location.href = "login.html";
+      };
+    }
+  });
+});
+</script>
+
+<script>
+  const addToWishlistBtn = document.getElementById("add-to-wishlist-btn");
+
+  addToWishlistBtn.addEventListener("click", () => {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+    const item = {
+      name: modalTitle.textContent,
+      price: parseFloat(modalPrice.textContent.replace("RM", "").trim()),
+      image: modalImg.src,
+      color: selectedColor,
+      size: sizeSelect.value,
+    };
+
+    const alreadyInWishlist = wishlist.some(
+      (i) =>
+        i.name === item.name &&
+        i.color === item.color &&
+        i.size === item.size
+    );
+
+    if (alreadyInWishlist) {
+      alert("❌ This item is already in your wishlist.");
+      return;
+    }
+
+    wishlist.push(item);
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+
+    alert(`❤️ Added to wishlist:\n${item.name}\nColor: ${item.color}\nSize: ${item.size}`);
+  });
+</script>
+
+</body>
+</html>

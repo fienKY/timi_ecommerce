@@ -1,0 +1,90 @@
+* {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url("Untitled design.jpg");
+      background-size: cover;
+      background-repeat: repeat;
+      background-attachment: fixed;
+      background-position: center;
+      color: #000;
+    }
+
+    header {
+      background-color: #0b0a09;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      color: white;
+    }
+
+    .menu-icon {
+      font-size: 2rem;
+      cursor: pointer;
+    }
+
+    .login {
+      font-weight: bold;
+      font-size: 1rem;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 60;
+      left: -250px;
+      width: 250px;
+      height: 100vh;
+      background-color: #f5dca8;
+      padding: 1.5rem;
+      border-right: 2px solid #000000;
+      transition: left 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.sidebar-open {
+      left: 0;
+    }
+
+    .brand {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .nav a {
+      display: block;
+      font-weight: bold;
+      text-decoration: none;
+      color: #000;
+      margin-bottom: 1.2rem;
+      padding: 0.75rem 1rem;
+    }
+
+    .nav a.active {
+      background-color: #c96f3b;
+      color: white;
+    }
+
+    @media (max-width: 400px) {
+  header h1 {
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+
+  .hero h2 {
+    font-size: 2rem;
+  }
+}

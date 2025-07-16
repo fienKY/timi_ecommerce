@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Cart - TIMI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff7f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    main {
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+    }
+
+    .address-section {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .address-section h2 {
+      font-size: 1.4rem;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .address-section p {
+      font-size: 1rem;
+      color: #444;
+      font-weight: 500;
+    }
+
+    .cart-container {
+      max-width: 900px;
+      margin: auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+
+    .cart-card {
+      background-color: #fffefc;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .item-price {
+      font-weight: bold;
+      color: black;
+    }
+
+    select {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 5px 10px;
+      margin-left: 4px;
+    }
+
+    .quantity-control button {
+      background: #ffd9cc;
+      border: none;
+      padding: 6px 10px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .quantity-control input {
+      width: 40px;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 5px;
+      margin: 0 6px;
+    }
+
+    .cart-total {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-top: 20px;
+    }
+
+    button#confirm-payment,
+    button.continue-btn {
+      background-color: black;
+      border: none;
+      padding: 12px 20px;
+      color: white;
+      font-size: 1rem;
+      border-radius: 8px;
+      margin: 15px 10px 0;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    #addressModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    #addressModalContent {
+      background: white;
+      max-width: 500px;
+      margin: 80px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 600px) {
+      .cart-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .quantity-control {
+        margin-top: 10px;
+      }
+
+      select {
+        width: 100%;
+        margin-top: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <a href="index.html"><h1>T I M I</h1></a>
+    </div>
+    <nav class="nav-center">
+      <ul>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="wishlist.html">Wishlist</a></li>
+        <li><a href="trackingOrder.html">Track Order</a></li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <span id="user-name">Guest</span>
+      <a href="settings.html" id="settings-link" style="color:white; text-decoration:none;">⚙️ Settings</a>
+      <button id="auth-btn">Log in</button>
+    </div>
+  </header>
+
+  <main>
+    <h1>Your Cart 🛒</h1>
+
+    <!-- Shipping Address Section -->
+    <div class="address-section">
+      <h2>Where to ship?</h2>
+      <p id="shipping-info">Loading...</p>
+      <button onclick="openAddressModal()" style="margin-top: 8px; padding: 8px 16px; border-radius: 6px; border: none; background: black; color: white;">Change Address</button>
+    </div>
+
+    <!-- Cart Items -->
+    <div class="cart-container" id="cart-container">
+      <p class="empty">Loading cart...</p>
+    </div>
+    <div class="cart-total">
+      Total: RM <span id="total-amount">0.00</span>
+    </div>
+    <div style="text-align: center;">
+      <button class="continue-btn" onclick="window.location.href='products.html'">← Continue Shopping</button>
+      <button id="confirm-payment">Confirm Payment</button>
+    </div>
+  </main>
+
+  <!-- Address Modal -->
+  <div id="addressModal">
+    <div id="addressModalContent">
+      <h3>Choose a Shipping Address</h3>
+      <div id="address-list"></div>
+      <div style="margin-top: 20px; text-align: right;">
+        <button onclick="closeAddressModal()" style="padding:8px 12px; margin-right:10px;">Cancel</button>
+        <button onclick="useSelectedAddress()" style="padding:8px 16px; background:black; color:white; border:none; border-radius:6px;">Use this address</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 TIMI. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function getCart() {
+      return JSON.parse(localStorage.getItem('cart')) || [];
+    }
+
+    function renderCart() {
+      const cart = getCart();
+      const cartContainer = document.getElementById('cart-container');
+      if (cart.length === 0) {
+        cartContainer.innerHTML = '<p class="empty">Your cart is empty.</p>';
+        document.getElementById('total-amount').textContent = "0.00";
+        return;
+      }
+
+      cartContainer.innerHTML = '';
+      let total = 0;
+
+      cart.forEach((item, index) => {
+        total += item.price * item.quantity;
+        const itemEl = document.createElement('div');
+        itemEl.className = 'cart-card';
+        itemEl.innerHTML = `
+          <div class="item-info">
+            <p class="item-title">${item.name}</p>
+            <div style="margin: 8px 0;">
+              <label style="font-size: 14px;">
+                Size:
+                <select class="size-select">
+                  <option ${item.size === 'S' ? 'selected' : ''}>S</option>
+                  <option ${item.size === 'M' ? 'selected' : ''}>M</option>
+                  <option ${item.size === 'L' ? 'selected' : ''}>L</option>
+                  <option ${item.size === 'XL' ? 'selected' : ''}>XL</option>
+                </select>
+              </label>
+              <label style="font-size: 14px; margin-left: 12px;">
+                Color:
+                <select class="color-select">
+                  <option ${item.color === 'white' ? 'selected' : ''}>white</option>
+                  <option ${item.color === 'black' ? 'selected' : ''}>black</option>
+                  <option ${item.color === 'blue' ? 'selected' : ''}>blue</option>
+                </select>
+              </label>
+            </div>
+            <p class="item-price">RM ${item.price.toFixed(2)}</p>
+          </div>
+          <div class="quantity-control">
+            <button class="decrease-btn">−</button>
+            <input type="text" class="quantity" value="${item.quantity}" readonly>
+            <button class="increase-btn">+</button>
+            <button class="remove-btn" style="margin-left: 10px; color: red;">Remove</button>
+          </div>
+        `;
+
+        const decreaseBtn = itemEl.querySelector('.decrease-btn');
+        const increaseBtn = itemEl.querySelector('.increase-btn');
+        const removeBtn = itemEl.querySelector('.remove-btn');
+        const sizeSelect = itemEl.querySelector('.size-select');
+        const colorSelect = itemEl.querySelector('.color-select');
+
+        increaseBtn.addEventListener('click', () => {
+          cart[index].quantity += 1;
+          localStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        });
+
+        decreaseBtn.addEventListener('click', () => {
+          if (cart[index].quantity > 1) {
+            cart[index].quantity -= 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
+          }
+        });
+
+        removeBtn.addEventListener('click', () => {
+          cart.splice(index, 1);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        });
+
+        sizeSelect.addEventListener('change', () => {
+          cart[index].size = sizeSelect.value;
+          localStorage.setItem('cart', JSON.stringify(cart));
+        });
+
+        colorSelect.addEventListener('change', () => {
+          cart[index].color = colorSelect.value;
+          localStorage.setItem('cart', JSON.stringify(cart));
+        });
+
+        cartContainer.appendChild(itemEl);
+      });
+
+      document.getElementById('total-amount').textContent = total.toFixed(2);
+    }
+
+    function renderShippingInfo() {
+      const addresses = JSON.parse(localStorage.getItem("userAddresses")) || [];
+      const selectedIndex = parseInt(localStorage.getItem("selectedAddressIndex")) || 0;
+      const infoElement = document.getElementById("shipping-info");
+
+      if (addresses.length === 0) {
+        infoElement.innerHTML = `No address found. <a href="settings.html">Add one in Settings</a>`;
+        return;
+      }
+
+      const selected = addresses[selectedIndex];
+      if (!selected) {
+        infoElement.textContent = "No valid address selected.";
+        return;
+      }
+
+      infoElement.textContent = `${selected.name} | ${selected.address} | ${selected.phone} (${selected.notes || "No label"})`;
+    }
+
+    function openAddressModal() {
+      const addresses = JSON.parse(localStorage.getItem("userAddresses")) || [];
+      const list = document.getElementById("address-list");
+      list.innerHTML = '';
+
+      addresses.forEach((addr, i) => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <label><input type="radio" name="selectedAddress" value="${i}" ${i === 0 ? 'checked' : ''}>
+            ${addr.name} | ${addr.address} | ${addr.phone} (${addr.notes || "No label"})
+          </label>
+        `;
+        list.appendChild(div);
+      });
+
+      document.getElementById("addressModal").style.display = 'block';
+    }
+
+    function closeAddressModal() {
+      document.getElementById("addressModal").style.display = 'none';
+    }
+
+    function useSelectedAddress() {
+      const selected = document.querySelector('input[name="selectedAddress"]:checked');
+      if (selected) {
+        localStorage.setItem("selectedAddressIndex", selected.value);
+        renderShippingInfo();
+        closeAddressModal();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCart();
+      renderShippingInfo();
+
+      const confirmBtn = document.getElementById('confirm-payment');
+      if (confirmBtn) {
+        confirmBtn.addEventListener('click', () => {
+          const cart = getCart();
+          if (cart.length === 0) {
+            alert("Your cart is empty.");
+          } else {
+            window.location.href = "payment.html";
+          }
+        });
+      }
+    });
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDi38gj03rQeoXqilbjaF43rgPAL2vYtwU",
+      authDomain: "timi-ecommerce-v2.firebaseapp.com",
+      projectId: "timi-ecommerce-v2",
+      storageBucket: "timi-ecommerce-v2.appspot.com",
+      messagingSenderId: "463474123257",
+      appId: "1:463474123257:web:033f324ef4ade6de379d28",
+      measurementId: "G-REQ0J6L2C6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const authBtn = document.getElementById("auth-btn");
+      const userNameDisplay = document.getElementById("user-name");
+      const settingsLink = document.getElementById("settings-link");
+
+      onAuthStateChanged(auth, (user) => {
+        const profile = JSON.parse(localStorage.getItem("userProfile")) || {};
+        const displayName = profile.name || (user ? user.email : "Guest");
+
+        if (user) {
+          userNameDisplay.textContent = displayName;
+          authBtn.textContent = "Log out";
+          authBtn.onclick = () => {
+            signOut(auth).then(() => {
+              window.location.href = "login.html";
+            });
+          };
+          if (settingsLink) settingsLink.style.display = "inline-block";
+        } else {
+          userNameDisplay.textContent = "Guest";
+          authBtn.textContent = "Log in";
+          authBtn.onclick = () => {
+            window.location.href = "login.html";
+          };
+          if (settingsLink) settingsLink.style.display = "none";
+        }
+      });
+    });
+  </script>
+
+  <script>
+  function getCart() {
+    return JSON.parse(localStorage.getItem('cart')) || [];
+  }
+
+  const productImagesByColor = {
+    "Kurta Ironless": {
+      white: "images/whiteKurtaIronless.png",
+      black: "images/blackKurtaIronless.png",
+      blue: "images/blueKurtaIronless.png",
+      Grey: "images/GreyKurtaIronless.png",
+      Red: "images/RedKurtaIronless.png"
+    },
+    "Kurta Pakistani": {
+      white: "images/KurtaLabuhWhite.png",
+      black: "images/KurtaLabuhBlack.png",
+      blue: "images/KurtaLabuhBlue.png"
+    },
+    "Kurta Teluk Belanga": {
+      brown: "images/BrownKurtaTB.png",
+      darkblue: "images/DarkBlueTB.png",
+      DustyPink: "images/DustyPinkTB.png",
+      Grey: "images/GreyKurtaTB.png",
+      Maroon: "images/MaroonKurtaTB.png",
+      MintGreen: "images/MintGreenTB.png",
+    },
+    "Samping": {
+      black: "images/Samping.png",
+    },
+    "Baju Melayu Teluk Belanga": {
+      black: "images/BMTBblack.png",
+      babyblue: "images/BMTBbabyblue.png",
+      DustyPink: "images/BMTBDustyPink.png",
+      LilacPurple: "images/BMTBlilacpurple.png",
+      MidnightPuprle: "images/BMTBmidnightpurple.png",
+      Red: "images/BMTBred.png",
+    },
+    "Baju Melayu Cekak Musang": {
+      black: "images/BMCMblack.png",
+      babyblue: "images/BMCMbabyblue.png",
+      mustard: "images/BMCMmustard.png",
+    },
+    "Baju Melayu Satin": {
+      DustyPink: "images/BMSdustypink.png",
+      MidnightPuprle: "images/BMSmidnightpurple.png",
+      Maroon: "images/BMSmaroon.png",
+      mustard: "images/BMSmustard.png",
+    },
+    "Tali samping": {
+      black: "images/taliSampingblack.png",
+    },
+  };
+
+  function renderCart() {
+    const cart = getCart();
+    const cartContainer = document.getElementById('cart-container');
+    if (cart.length === 0) {
+      cartContainer.innerHTML = '<p class="empty">Your cart is empty.</p>';
+      document.getElementById('total-amount').textContent = "0.00";
+      return;
+    }
+
+    cartContainer.innerHTML = '';
+    let total = 0;
+
+    cart.forEach((item, index) => {
+      total += item.price * item.quantity;
+
+      const itemEl = document.createElement('div');
+      itemEl.className = 'cart-card';
+
+      const colors = productImagesByColor[item.name] || {};
+      const availableColors = Object.keys(colors);
+      const colorOptions = availableColors.map(color =>
+        `<option value="${color}" ${item.color === color ? 'selected' : ''}>${color}</option>`
+      ).join('');
+
+      itemEl.innerHTML = `
+        <div class="item-info">
+          <p class="item-title">${item.name}</p>
+          <div style="margin: 8px 0;">
+            <label style="font-size: 14px;">
+              Size:
+              <select class="size-select">
+                <option ${item.size === 'S' ? 'selected' : ''}>S</option>
+                <option ${item.size === 'M' ? 'selected' : ''}>M</option>
+                <option ${item.size === 'L' ? 'selected' : ''}>L</option>
+                <option ${item.size === 'XL' ? 'selected' : ''}>XL</option>
+              </select>
+            </label>
+            <label style="font-size: 14px; margin-left: 12px;">
+              Color:
+              <select class="color-select">${colorOptions}</select>
+            </label>
+          </div>
+          <p class="item-price">RM ${item.price.toFixed(2)}</p>
+        </div>
+        <div class="quantity-control">
+          <button class="decrease-btn">−</button>
+          <input type="text" class="quantity" value="${item.quantity}" readonly>
+          <button class="increase-btn">+</button>
+          <button class="remove-btn" style="margin-left: 10px; color: red;">Remove</button>
+        </div>
+      `;
+
+      const decreaseBtn = itemEl.querySelector('.decrease-btn');
+      const increaseBtn = itemEl.querySelector('.increase-btn');
+      const removeBtn = itemEl.querySelector('.remove-btn');
+      const sizeSelect = itemEl.querySelector('.size-select');
+      const colorSelect = itemEl.querySelector('.color-select');
+
+      increaseBtn.addEventListener('click', () => {
+        cart[index].quantity += 1;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+      });
+
+      decreaseBtn.addEventListener('click', () => {
+        if (cart[index].quantity > 1) {
+          cart[index].quantity -= 1;
+          localStorage.setItem('cart', JSON.stringify(cart));
+          renderCart();
+        }
+      });
+
+      removeBtn.addEventListener('click', () => {
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+      });
+
+      sizeSelect.addEventListener('change', () => {
+        cart[index].size = sizeSelect.value;
+        localStorage.setItem('cart', JSON.stringify(cart));
+      });
+
+      colorSelect.addEventListener('change', () => {
+        const selectedColor = colorSelect.value;
+        cart[index].color = selectedColor;
+
+        const newImage = productImagesByColor[item.name]?.[selectedColor];
+        if (newImage) {
+          cart[index].image = newImage;
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+      });
+
+      cartContainer.appendChild(itemEl);
+    });
+
+    document.getElementById('total-amount').textContent = total.toFixed(2);
+  }
+
+  function renderShippingInfo() {
+    const addresses = JSON.parse(localStorage.getItem("userAddresses")) || [];
+    const selectedIndex = parseInt(localStorage.getItem("selectedAddressIndex")) || 0;
+    const infoElement = document.getElementById("shipping-info");
+
+    if (addresses.length === 0) {
+      infoElement.innerHTML = `No address found. <a href="settings.html">Add one in Settings</a>`;
+      return;
+    }
+
+    const selected = addresses[selectedIndex];
+    if (!selected) {
+      infoElement.textContent = "No valid address selected.";
+      return;
+    }
+
+    infoElement.textContent = `${selected.name} | ${selected.address} | ${selected.phone} (${selected.notes || "No label"})`;
+  }
+
+  function openAddressModal() {
+    const addresses = JSON.parse(localStorage.getItem("userAddresses")) || [];
+    const list = document.getElementById("address-list");
+    list.innerHTML = '';
+
+    addresses.forEach((addr, i) => {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <label><input type="radio" name="selectedAddress" value="${i}" ${i === 0 ? 'checked' : ''}>
+          ${addr.name} | ${addr.address} | ${addr.phone} (${addr.notes || "No label"})
+        </label>
+      `;
+      list.appendChild(div);
+    });
+
+    document.getElementById("addressModal").style.display = 'block';
+  }
+
+  function closeAddressModal() {
+    document.getElementById("addressModal").style.display = 'none';
+  }
+
+  function useSelectedAddress() {
+    const selected = document.querySelector('input[name="selectedAddress"]:checked');
+    if (selected) {
+      localStorage.setItem("selectedAddressIndex", selected.value);
+      renderShippingInfo();
+      closeAddressModal();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderCart();
+    renderShippingInfo();
+
+    const confirmBtn = document.getElementById('confirm-payment');
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', () => {
+        const cart = getCart();
+        if (cart.length === 0) {
+          alert("Your cart is empty.");
+        } else {
+          window.location.href = "payment.html";
+        }
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

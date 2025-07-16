@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Receipt - TIMI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fefaf6;
+      margin: 0;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .receipt-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      color: #4caf50;
+    }
+    .highlight {
+      color: #fd8774;
+      font-weight: bold;
+    }
+    .print-btn {
+      margin-top: 20px;
+      background: #222;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .back-btn {
+      margin-top: 10px;
+      display: inline-block;
+      color: white;
+      background: #fd8774;
+      padding: 10px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+    .order-items {
+      text-align: left;
+      margin-top: 20px;
+    }
+    .order-items ul {
+      padding-left: 0;
+      list-style: none;
+    }
+    .order-items li {
+      margin: 10px 0;
+    }
+    .address-block {
+      margin-top: 20px;
+      background: #f7f7f7;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt-box">
+    <h1>Thank you for your order!</h1>
+    <p>Your order ID is: <span class="highlight" id="order-id">Loading...</span></p>
+    <p>Payment Method: <span class="highlight" id="payment-method">Loading...</span></p>
+    <p>Total Paid: RM <span class="highlight" id="total-paid">0.00</span></p>
+    <p>Delivery Status: <span class="highlight" id="delivery-status">Loading...</span></p>
+
+    <div class="address-block">
+      <p><strong>Name:</strong> <span id="customer-name"></span></p>
+      <p><strong>Phone:</strong> <span id="customer-phone"></span></p>
+      <p><strong>Address:</strong> <span id="customer-address"></span></p>
+    </div>
+
+    <div class="order-items">
+      <h3>Order Summary:</h3>
+      <ul id="order-summary"></ul>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">Print Receipt</button><br>
+    <a class="back-btn" href="index.html">Back to Home</a>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDi38gj03rQeoXqilbjaF43rgPAL2vYtwU",
+      authDomain: "timi-ecommerce-v2.firebaseapp.com",
+      projectId: "timi-ecommerce-v2",
+      storageBucket: "timi-ecommerce-v2.appspot.com",
+      messagingSenderId: "463474123257",
+      appId: "1:463474123257:web:033f324ef4ade6de379d28"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get("orderId");
+
+    document.getElementById("order-id").textContent = orderId;
+
+    async function fetchOrderDetails() {
+      try {
+        const q = query(collection(db, "orders"), where("orderId", "==", orderId));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          document.querySelector(".receipt-box").innerHTML = "<p>Order not found. Please check your order ID.</p>";
+          return;
+        }
+
+        const order = snapshot.docs[0].data();
+
+        document.getElementById("payment-method").textContent = order.paymentMethod || "-";
+        document.getElementById("total-paid").textContent = order.total || "0.00";
+        document.getElementById("delivery-status").textContent = order.status?.delivery || "-";
+        document.getElementById("customer-name").textContent = order.customerName || "-";
+        document.getElementById("customer-phone").textContent = order.customerPhone || "-";
+        document.getElementById("customer-address").textContent = order.customerAddress || "-";
+
+        const summaryEl = document.getElementById("order-summary");
+        order.products?.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = `${item.name} - ${item.size || '-'} / ${item.color || '-'} x${item.quantity} (RM${item.price.toFixed(2)})`;
+          summaryEl.appendChild(li);
+        });
+      } catch (err) {
+        console.error("Error loading receipt:", err);
+        document.querySelector(".receipt-box").innerHTML = "<p>Something went wrong loading your receipt.</p>";
+      }
+    }
+
+    fetchOrderDetails();
+  </script>
+</body>
+</html>

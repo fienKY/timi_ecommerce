@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TIMI - Home</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      min-height: 100vh;
+      background: #fff7f0;
+      color: #222;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: black;
+  color: white;
+  padding: 1rem 0;
+  width: 100vw;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-left,
+.header-right {
+  width: 25vw;
+  padding: 0 1.5rem;
+}
+
+.header-left h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: white;
+}
+
+.nav-center {
+  width: 50vw;
+  text-align: center;
+}
+
+.nav-center ul {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-center ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  padding-bottom: 0.15rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.nav-center ul li a:hover,
+.nav-center ul li a.active {
+  color: white;
+  border-bottom: 2px solid white;
+}
+
+.header-right {
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+}
+
+#logout-btn {
+  background: white;
+  color: black;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+    main {
+      flex: 1 0 auto;
+      min-height: 0;
+      min-width: 0;
+      padding: 0;
+      margin: 0;
+      width: 100vw;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      width: 100vw;
+      min-height: 46vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: none;
+    }
+    .hero-image-container {
+      position: relative;
+      width: 100vw;
+      height: 330px;
+      max-height: 38vh;
+      overflow: hidden;
+      border-radius: 0 0 32px 32px;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-image {
+      width: 100vw;
+      min-width: 100vw;
+      min-height: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      filter: brightness(0.7) blur(0.5px);
+      display: block;
+    }
+    .hero-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.23);
+      z-index: 1;
+    }
+    .hero-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      text-align: center;
+      width: 90vw;
+      z-index: 2;
+    }
+    .hero-text h1 {
+      font-size: 3.3rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.25em;
+      text-shadow: 0 2px 18px rgba(0,0,0,0.21);
+    }
+    .hero-text p {
+      font-size: 1.5rem;
+      font-weight: 400;
+      line-height: 1.4;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.13);
+    }
+
+    /* Brand Values Section */
+    .brand-values {
+      margin: 3.7rem 0 3rem 0;
+      text-align: center;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .brand-values h2 {
+      margin-bottom: 1.3rem;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #222;
+    }
+    .values-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2.2rem;
+      margin-bottom: 2.9rem;
+      width: 100vw;
+      max-width: 1150px;
+    }
+    .values-grid div {
+      background: #dddde2;
+      border-radius: 18px;
+      padding: 1.6rem 1.7rem 1.4rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      width: 255px;
+      transition: box-shadow 0.2s, transform 0.18s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 180px;
+    }
+    .values-grid div:hover {
+      box-shadow: 0 6px 22px rgba(253,135,116,0.13);
+      transform: translateY(-4px) scale(1.025);
+    }
+    .values-grid img {
+      width: 58px;
+      margin-bottom: 0.8em;
+    }
+    .values-grid h3 {
+      margin: 0.4em 0 0.2em;
+      font-size: 1.32rem;
+      color: black;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .values-grid p {
+      font-size: 1.07rem;
+      margin: 0;
+      color: #444;
+      font-weight: 400;
+    }
+
+    /* CTA Tiles */
+.cta-tiles {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.6rem;
+  margin: 2.5rem auto;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.cta-tiles .tile {
+  flex: none;
+  width: 280px;
+  background: black;
+  color: #fff;
+  border-radius: 12px;
+  padding: 1.42rem 1rem;
+  text-align: center;
+  font-size: 1.23rem;
+  font-weight: 600;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.18s;
+  box-shadow: 0 2px 14px rgba(253,135,116,0.08);
+  letter-spacing: 0.01em;
+  margin-bottom: 0.2rem;
+}
+
+    .cta-tiles .tile a {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .cta-tiles .tile:hover {
+      background: #ff9f8b;
+      box-shadow: 0 5px 20px rgba(253,135,116,0.12);
+      transform: translateY(-4px) scale(1.025);
+    }
+    @media (max-width: 900px) {
+      .brand-values .values-grid, .cta-tiles { flex-direction: column; gap: 1.7rem; align-items: center;}
+      .values-grid div, .cta-tiles .tile { width: 90vw; min-width: 0; max-width: 100vw;}
+      .hero-image-container{height: 210px;}
+      .hero-text h1{font-size: 2.1rem;}
+      .hero-text p{font-size: 1.1rem;}
+    }
+    footer {
+      text-align: center;
+      padding: 1.5rem 0 0.7rem;
+      background: #181818;
+      color: #fff;
+      width: 100vw;
+      margin: 0;
+      font-size: 1rem;
+      border-radius: 0;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-left">
+    <a href="index.html"><h1>T I M I</h1></a>
+  </div>
+
+  <nav class="nav-center">
+    <ul>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="cart.html">Cart</a></li>
+      <li><a href="wishlist.html">Wishlist</a></li>
+      <li><a href="trackingOrder.html">Track Order</a></li>
+    </ul>
+  </nav>
+
+  <div class="header-right">
+    <span id="user-name">Guest</span>
+    <a href="settings.html" id="settings-link" style="color:white; text-decoration:none;">⚙️ Settings</a>
+    <button id="auth-btn">Log in</button>
+  </div>
+</header>
+
+  <main>
+    <!-- Hero Banner atau banner Welcome-->
+    <section class="hero-banner">
+      <div class="hero-image-container">
+        <img src="images/bgHeader.png" alt="Banner" class="hero-image">
+        <div class="hero-overlay"></div>
+        <div class="hero-text">
+          <h1>Welcome to TIMI</h1>
+          <p>Simple. Stylish. Sustainable.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOME SECTION -->
+    <section class="brand-values">
+      <h2>What Makes TIMI Unique?</h2>
+      <div class="values-grid">
+        <div>
+          <img src="https://img.icons8.com/fluency/48/leaf.png" alt="Eco-Friendly" />
+          <h3>Eco-Friendly</h3>
+          <p>All materials are sustainably sourced.</p>
+        </div>
+        <div>
+          <img src="images/shirticon.png" alt="Handmade" />
+          <h3>Handmade</h3>
+          <p>Each product is crafted with care.</p>
+        </div>
+        <div>
+          <img src="https://img.icons8.com/fluency/48/checked-checkbox.png" alt="Quality" />
+          <h3>Quality</h3>
+          <p>We guarantee satisfaction.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Tiles -->
+    <section class="cta-tiles">
+      <div class="tile"><a href="products.html">Browse Our Collection</a></div>
+      <div class="tile"><a href="about.html">About Us</a></div>
+      <div class="tile"><a href="contact.html">Get in Touch</a></div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 TIMI. All rights reserved.</p>
+  </footer>
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDi38gj03rQeoXqilbjaF43rgPAL2vYtwU",
+  authDomain: "timi-ecommerce-v2.firebaseapp.com",
+  projectId: "timi-ecommerce-v2",
+  storageBucket: "timi-ecommerce-v2.appspot.com",
+  messagingSenderId: "463474123257",
+  appId: "1:463474123257:web:033f324ef4ade6de379d28",
+  measurementId: "G-REQ0J6L2C6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.addEventListener("DOMContentLoaded", () => {
+  const authBtn = document.getElementById("auth-btn");
+  const userNameDisplay = document.getElementById("user-name");
+
+  onAuthStateChanged(auth, (user) => {
+    const profile = JSON.parse(localStorage.getItem("userProfile")) || {};
+    const displayName = profile.name || "Guest";
+
+    if (user) {
+      userNameDisplay.textContent = `${displayName}`;
+      authBtn.textContent = "Log out";
+      authBtn.onclick = () => {
+        signOut(auth).then(() => {
+          window.location.href = "login.html";
+        });
+      };
+    } else {
+      userNameDisplay.textContent = "Guest";
+      authBtn.textContent = "Log in";
+      authBtn.onclick = () => {
+        window.location.href = "login.html";
+      };
+    }
+  });
+});
+</script>
+</body>
+</html>

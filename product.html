@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Product Page</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .main-content {
+      flex-grow: 1;
+      padding: 1.5rem;
+      margin-left: 0;
+      transition: margin-left 0.3s ease;
+    }
+    .container.sidebar-open .main-content { margin-left: 250px; }
+    .status-box {
+      background-color: #000;
+      padding: 1rem;
+      border-radius: 20px;
+    }
+    h2 { text-align: center; color: #fff; font-size: 2rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background-color: #000;
+      color: white;
+    }
+    th, td {
+      border: 1px solid #fff;
+      padding: 0.75rem;
+      text-align: center;
+    }
+    .add-btn {
+      float: right;
+      background-color: white;
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin-top: -2.5rem;
+    }
+    #product-form {
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      background-color: white;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+    #product-form input,
+    #product-form button {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    .delete-btn {
+      background-color: white;
+      color: red;
+      border: 1px solid red;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .edit-btn {
+      background-color: white;
+      color: green;
+      border: 1px solid green;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+    .sold-out {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="menu-icon" class="menu-icon">&#9776;</div>
+    <div class="login">&#128100; LOG IN</div>
+  </header>
+
+  <div class="container">
+    <aside id="sidebar" class="sidebar">
+      <div class="brand">TIMI</div>
+      <nav class="nav">
+        <a href="editprofile.html">USER PROFILE</a>
+        <a href="product.html">PRODUCT</a>
+        <a href="order.html">ORDER</a>
+        <a href="payment.html">PAYMENT</a>
+        <a href="delivery.html">DELIVERY</a>
+        <a href="reviews&rating.html">REVIEW & RATING</a>
+        <a href="dashboard.html">Back to dashboard</a>
+      </nav>
+    </aside>
+
+    <div class="main-content">
+      <div class="status-box">
+        <h2>PRODUCTS</h2>
+        <button class="add-btn" onclick="toggleForm()">+</button>
+
+        <form id="product-form" onsubmit="addProduct(event)">
+          <input type="text" id="name" placeholder="Product Name" required />
+          <input type="text" id="price" placeholder="Price" required />
+          <input type="text" id="size" placeholder="Size (e.g S,M,L,XL,XXL,XXXL)" required />
+          <input type="text" id="color" placeholder="Color(e.g MAROON,BLUE,BLACK)" required />
+          <input type="text" id="description" placeholder="Description" required />
+          <input type="file" id="image" accept="image/*" />
+          <button type="submit">Add Product</button>
+        </form>
+
+        <table>
+          <thead>
+            <tr>
+              <th>NAME</th>
+              <th>PRICE</th>
+              <th>SIZE</th>
+              <th>COLOR</th>
+              <th>DESCRIPTION</th>
+              <th>IMAGE</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="product-table-body">
+            <!-- Filled by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const menuIcon = document.getElementById("menu-icon");
+    const sidebar = document.getElementById("sidebar");
+
+    menuIcon.addEventListener("click", () => {
+      sidebar.classList.toggle("sidebar-open");
+    });
+  });
+</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script type="module">
+  import { db, collection, addDoc, doc, setDoc, onSnapshot, deleteDoc } from './firebase-config.js';
+
+  const productsRef = collection(db, "products");
+
+  let editMode = false;
+  let editId = null;
+
+  window.toggleForm = () => {
+    const form = document.getElementById("product-form");
+    form.style.display = form.style.display === "flex" ? "none" : "flex";
+  };
+
+  window.addProduct = async (event) => {
+    event.preventDefault();
+
+    const name = document.getElementById("name").value;
+    const price = document.getElementById("price").value;
+    const size = document.getElementById("size").value.split(",").map(s => s.trim()).filter(s => s !== "");
+    const color = document.getElementById("color").value.split(",").map(c => c.trim()).filter(c => c !== "");
+    const description = document.getElementById("description").value;
+
+    const productData = { name, price, size, color, description };
+
+    if (editMode) {
+      const docRef = doc(db, "products", editId);
+      await setDoc(docRef, productData);
+      editMode = false;
+      editId = null;
+    } else {
+      await addDoc(productsRef, productData);
+    }
+
+    event.target.reset();
+    toggleForm();
+  };
+
+  window.deleteProduct = async (id) => {
+    if (confirm("Delete this product?")) {
+      await deleteDoc(doc(db, "products", id));
+    }
+  };
+
+  window.editProduct = (id, data) => {
+    document.getElementById("name").value = data.name || "";
+    document.getElementById("price").value = data.price || "";
+    document.getElementById("size").value = Array.isArray(data.size) ? data.size.join(", ") : data.size;
+    document.getElementById("color").value = Array.isArray(data.color) ? data.color.join(", ") : data.color;
+    document.getElementById("description").value = data.description || "";
+
+    editMode = true;
+    editId = id;
+    document.getElementById("product-form").style.display = "flex";
+  };
+
+  const renderProducts = () => {
+    const tableBody = document.getElementById("product-table-body");
+    tableBody.innerHTML = "";
+
+    onSnapshot(productsRef, (snapshot) => {
+      tableBody.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const p = docSnap.data();
+        const id = docSnap.id;
+        const isSoldOut = p.quantity === 0 || p.stock === 0;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.name} ${isSoldOut ? '<span class="sold-out">(SOLD OUT)</span>' : ''}</td>
+          <td>${p.price}</td>
+          <td>${Array.isArray(p.size) ? p.size.join(", ") : p.size}</td>
+          <td>${Array.isArray(p.color) ? p.color.join(", ") : p.color}</td>
+          <td>${p.description}</td>
+          <td>
+            <button class="delete-btn" onclick="deleteProduct('${id}')">Delete</button>
+            <button class="edit-btn" onclick='editProduct("${id}", ${JSON.stringify(p).replace(/'/g, "\\'")})'>Edit</button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    });
+  };
+
+  renderProducts();
+</script>
+</body>
+</html>

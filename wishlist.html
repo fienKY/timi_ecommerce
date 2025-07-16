@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wishlist - TIMI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+
+    .wishlist-container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .wishlist-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 15px;
+    }
+
+    .wishlist-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 20px;
+    }
+
+    .wishlist-info {
+      flex-grow: 1;
+    }
+
+    .wishlist-info h4 {
+      margin: 0 0 8px 0;
+    }
+
+    .wishlist-info p {
+      margin: 3px 0;
+    }
+
+    .wishlist-actions button {
+      margin-right: 10px;
+      padding: 8px 14px;
+      background: #bdac96;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .wishlist-actions button.remove {
+      background: crimson;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #888;
+      font-size: 1.2rem;
+    }
+
+    select {
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <a href="index.html"><h1>T I M I</h1></a>
+    </div>
+    <nav class="nav-center">
+      <ul>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="wishlist.html">Wishlist</a></li>
+        <li><a href="trackingOrder.html">Track Order</a></li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <span id="user-name">Guest</span>
+      <a href="settings.html" id="settings-link" style="color:white; text-decoration:none;">⚙️ Settings</a>
+      <button id="auth-btn">Log in</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="wishlist-container" id="wishlist-container">
+      <h2>Your Wishlist</h2>
+      <div id="wishlist-items"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 TIMI. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const colorInfo = {
+      white: "White", black: "Black", maroon: "Maroon", blue: "Blue", brown: "Brown",
+      grey: "Grey", pink: "Dusty Pink", green: "Mint Green", red: "Red", darkblue: "Dark Blue",
+      DustyPink: "Dusty Pink", MintGreen: "Mint Green", LilacPurple: "Lilac Purple",
+      MidnightPuprle: "Midnight Purple", babyblue: "Baby Blue", mustard: "Mustard"
+    };
+
+    const productImagesByColor = {
+      "Kurta Ironless": ["white", "black", "blue", "Grey", "Red"],
+      "Kurta Pakistani": ["white", "black", "blue"],
+      "Kurta Teluk Belanga": ["brown", "darkblue", "DustyPink", "Grey", "Maroon", "MintGreen"],
+      "Samping": ["black"],
+      "Baju Melayu Teluk Belanga": ["black", "babyblue", "DustyPink", "LilacPurple", "MidnightPuprle", "Red"],
+      "Baju Melayu Cekak Musang": ["black", "babyblue", "mustard"],
+      "Baju Melayu Satin": ["DustyPink", "MidnightPuprle", "Maroon", "mustard"],
+      "Tali samping": ["black"]
+    };
+
+    const wishlistItems = document.getElementById("wishlist-items");
+    let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+
+    function renderWishlist() {
+      wishlistItems.innerHTML = "";
+
+      if (wishlist.length === 0) {
+        wishlistItems.innerHTML = "<p class='empty-message'>Your wishlist is empty.</p>";
+        return;
+      }
+
+      wishlist.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "wishlist-item";
+
+        const productName = item.name;
+        const availableColors = productImagesByColor[productName] || [item.color];
+
+        div.innerHTML = `
+          <img src="${item.image || 'images/default.png'}" alt="${item.name}">
+          <div class="wishlist-info">
+            <h4>${item.name}</h4>
+            <p>Price: RM ${parseFloat(item.price).toFixed(2)}</p>
+
+            <label>Size:
+              <select class="size-select" data-index="${index}">
+                <option ${item.size === "S" ? "selected" : ""}>S</option>
+                <option ${item.size === "M" ? "selected" : ""}>M</option>
+                <option ${item.size === "L" ? "selected" : ""}>L</option>
+                <option ${item.size === "XL" ? "selected" : ""}>XL</option>
+              </select>
+            </label><br/>
+
+            <label>Color:
+              <select class="color-select" data-index="${index}">
+                ${availableColors.map(c => `
+                  <option value="${c}" ${item.color === c ? "selected" : ""}>${colorInfo[c] || c}</option>
+                `).join("")}
+              </select>
+            </label>
+          </div>
+
+          <div class="wishlist-actions">
+            <button onclick="addToCart(${index})">Add to Cart</button>
+            <button class="remove" onclick="removeFromWishlist(${index})">Remove</button>
+          </div>
+        `;
+
+        wishlistItems.appendChild(div);
+      });
+
+      document.querySelectorAll(".size-select").forEach(select => {
+        select.addEventListener("change", (e) => {
+          const i = e.target.dataset.index;
+          wishlist[i].size = e.target.value;
+          localStorage.setItem("wishlist", JSON.stringify(wishlist));
+        });
+      });
+
+      document.querySelectorAll(".color-select").forEach(select => {
+        select.addEventListener("change", (e) => {
+          const i = e.target.dataset.index;
+          wishlist[i].color = e.target.value;
+          localStorage.setItem("wishlist", JSON.stringify(wishlist));
+        });
+      });
+    }
+
+    function addToCart(index) {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      cart.push(wishlist[index]);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      alert("✔️ Item added to cart.");
+    }
+
+    function removeFromWishlist(index) {
+      wishlist.splice(index, 1);
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      renderWishlist();
+    }
+
+    renderWishlist();
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDi38gj03rQeoXqilbjaF43rgPAL2vYtwU",
+      authDomain: "timi-ecommerce-v2.firebaseapp.com",
+      projectId: "timi-ecommerce-v2",
+      storageBucket: "timi-ecommerce-v2.appspot.com",
+      messagingSenderId: "463474123257",
+      appId: "1:463474123257:web:033f324ef4ade6de379d28"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const authBtn = document.getElementById("auth-btn");
+      const userNameDisplay = document.getElementById("user-name");
+
+      onAuthStateChanged(auth, (user) => {
+        const profile = JSON.parse(localStorage.getItem("userProfile")) || {};
+        const displayName = profile.name || "Guest";
+
+        if (user) {
+          userNameDisplay.textContent = displayName;
+          authBtn.textContent = "Log out";
+          authBtn.onclick = () => {
+            signOut(auth).then(() => {
+              window.location.href = "login.html";
+            });
+          };
+        } else {
+          userNameDisplay.textContent = "Guest";
+          authBtn.textContent = "Log in";
+          authBtn.onclick = () => {
+            window.location.href = "login.html";
+          };
+        }
+      });
+    });
+  </script>
+</body>
+</html>

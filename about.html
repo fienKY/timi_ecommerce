@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About Us - TIMI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style> 
+     #logout-btn {
+  background: white;
+  color: black;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+  </style>
+
+</head>
+<body>
+  <header>
+  <div class="header-left">
+    <a href="index.html"><h1>T I M I</h1></a>
+  </div>
+
+  <nav class="nav-center">
+    <ul>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="cart.html">Cart</a></li>
+      <li><a href="wishlist.html">Wishlist</a></li>
+      <li><a href="trackingOrder.html">Track Order</a></li>
+    </ul>
+  </nav>
+
+  <div class="header-right">
+    <span id="user-name">Guest</span>
+    <a href="settings.html" id="settings-link" style="color:white; text-decoration:none;">⚙️ Settings</a>
+    <button id="auth-btn">Log in</button>
+  </div>
+</header>
+
+  <main>
+    <section class="hero">
+      <h2>About TIMI</h2>
+      <p>We offer traditional men’s wear with a blend of comfort, style, and authenticity.</p>
+    </section>
+
+    <section class="about-content">
+      <h2>Our Story</h2>
+      <p>
+        TIMI is dedicated to preserving and celebrating traditional Malaysian attire, particularly the
+        <strong>kurta</strong> and <strong>baju melayu</strong>. We aim to provide high-quality, comfortable clothing
+        for modern men who appreciate heritage fashion. Whether for casual wear or special occasions, our products
+        blend culture with contemporary style.
+      </p>
+
+      <h2>Our Mission</h2>
+      <p>
+        Our mission is simple: to make traditional wear accessible and fashionable. We prioritize quality, ensuring
+        that every piece is crafted with care and made from the finest materials to deliver a premium experience.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 TIMI. All rights reserved.</p>
+  </footer>
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDi38gj03rQeoXqilbjaF43rgPAL2vYtwU",
+  authDomain: "timi-ecommerce-v2.firebaseapp.com",
+  projectId: "timi-ecommerce-v2",
+  storageBucket: "timi-ecommerce-v2.appspot.com",
+  messagingSenderId: "463474123257",
+  appId: "1:463474123257:web:033f324ef4ade6de379d28",
+  measurementId: "G-REQ0J6L2C6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.addEventListener("DOMContentLoaded", () => {
+  const authBtn = document.getElementById("auth-btn");
+  const userNameDisplay = document.getElementById("user-name");
+
+  onAuthStateChanged(auth, (user) => {
+    const profile = JSON.parse(localStorage.getItem("userProfile")) || {};
+    const displayName = profile.name || "Guest";
+
+    if (user) {
+      userNameDisplay.textContent = `${displayName}`;
+      authBtn.textContent = "Log out";
+      authBtn.onclick = () => {
+        signOut(auth).then(() => {
+          window.location.href = "login.html";
+        });
+      };
+    } else {
+      userNameDisplay.textContent = "Guest";
+      authBtn.textContent = "Log in";
+      authBtn.onclick = () => {
+        window.location.href = "login.html";
+      };
+    }
+  });
+});
+</script>
+</body>
+</html>

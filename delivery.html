@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Delivery Status</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .main-content {
+      flex-grow: 1;
+      padding: 1.5rem;
+      transition: margin-left 0.3s ease;
+      margin-left: 0;
+    }
+
+    .container.sidebar-open .main-content {
+      margin-left: 250px;
+    }
+
+    .status-box {
+      background-color: #000000;
+      padding: 1rem;
+      border-radius: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: rgb(255, 255, 255);
+      font-size: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background-color: #000000;
+      color: rgb(255, 254, 254);
+    }
+
+    th, td {
+      border: 1px solid #fff;
+      padding: 0.75rem;
+      text-align: center;
+    }
+
+    th {
+      font-weight: bold;
+    }
+
+    .add-btn {
+      float: right;
+      background-color: white;
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin-top: -2.5rem;
+    }
+
+    #delivery-form {
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      background-color: white;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    #delivery-form input, #delivery-form select, #delivery-form button {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .delete-btn {
+      background-color: white;
+      color: red;
+      border: 1px solid red;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div id="menu-icon" class="menu-icon">&#9776;</div>
+    <div class="login">&#128100; LOG IN</div>
+  </header>
+
+  <div class="container">
+    <aside id="sidebar" class="sidebar">
+      <div class="brand">TIMI</div>
+      <nav class="nav">
+        <a href="editprofile.html">USER PROFILE</a>
+        <a href="product.html">PRODUCT</a>
+        <a href="order.html">ORDER</a>
+        <a href="payment.html">PAYMENT</a>
+        <a href="delivery.html">DELIVERY</a>
+        <a href="reviews&rating.html">REVIEW & RATING</a>
+        <a href="dashboard.html">Back to dashboard</a>
+      </nav>
+    </aside>
+
+    <div class="main-content">
+      <div class="status-box">
+        <h2>STATUS DELIVERY</h2>
+        <button class="add-btn" onclick="toggleForm()">+</button>
+
+        <form id="delivery-form" onsubmit="addDelivery(event)">
+          <input type="text" id="order-id" placeholder="Order ID" required />
+          <input type="text" id="courier" placeholder="Courier" required />
+          <input type="text" id="tracking-number" placeholder="Tracking Number" required />
+          <select id="progress" required>
+            <option value="">Select Progress</option>
+            <option value="Preparing">Preparing</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+          <button type="submit">Add Delivery</button>
+        </form>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ORDER ID</th>
+              <th>COURIER</th>
+              <th>TRACKING NUMBER</th>
+              <th>PROGRESS</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="delivery-table-body">
+            <!-- Filled by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const menuIcon = document.getElementById("menu-icon");
+    const sidebar = document.getElementById("sidebar");
+
+    menuIcon.addEventListener("click", () => {
+      sidebar.classList.toggle("sidebar-open");
+    });
+  });
+</script>
+  
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script type="module">
+  import { db, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from './firebase-config.js';
+
+  const menuIcon = document.getElementById("menu-icon");
+  const sidebar = document.getElementById("sidebar");
+  const container = document.querySelector(".container");
+
+  window.toggleForm = function () {
+    const form = document.getElementById("delivery-form");
+    form.style.display = form.style.display === "flex" ? "none" : "flex";
+  };
+
+  window.addDelivery = async function (event) {
+    event.preventDefault();
+
+    const orderId = document.getElementById("order-id").value;
+    const courier = document.getElementById("courier").value;
+    const tracking = document.getElementById("tracking-number").value;
+    const progress = document.getElementById("progress").value;
+
+    try {
+      await addDoc(collection(db, "deliveries"), {
+        orderId,
+        courier,
+        trackingNumber: tracking,
+        progress,
+        timestamp: serverTimestamp()
+      });
+
+      event.target.reset();
+      toggleForm();
+      loadDeliveries();
+    } catch (error) {
+      console.error("Error adding delivery: ", error);
+    }
+  };
+
+  async function loadDeliveries() {
+    const tableBody = document.getElementById("delivery-table-body");
+    tableBody.innerHTML = "";
+
+    const querySnapshot = await getDocs(collection(db, "deliveries"));
+    querySnapshot.forEach((docSnap) => {
+      const d = docSnap.data();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${d.orderId}</td>
+        <td>${d.courier}</td>
+        <td>${d.trackingNumber}</td>
+        <td>${d.progress}</td>
+        <td><button class="delete-btn" onclick="deleteDelivery(\"${docSnap.id}\")">Delete</button></td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  window.deleteDelivery = async function (docId) {
+    if (confirm("Delete this delivery?")) {
+      await deleteDoc(doc(db, "deliveries", docId));
+      loadDeliveries();
+    }
+  };
+
+  window.onload = loadDeliveries;
+</script>
+</body>
+</html>

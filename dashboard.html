@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TIMI E-Commerce</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url("Untitled design.jpg");
+      background-size: cover;
+      background-repeat: repeat;
+      background-attachment: fixed;
+      background-position: center;
+      color: #000;
+    }
+
+    header {
+      background-color: #0b0a09;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      color: white;
+    }
+
+    .menu-icon { 
+      font-size: 2rem; 
+      cursor: pointer; 
+    }
+
+    .login { 
+      font-weight: bold; 
+      font-size: 1rem; 
+    }
+
+    .container { 
+      display: flex; 
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 60;
+      left: -250px;
+      width: 250px;
+      height: 100vh;
+      background-color: #f5dca8;
+      padding: 1.5rem;
+      border-right: 2px solid #000000;
+      transition: left 0.3s ease;
+      z-index: 1000;
+    }
+    .sidebar.active { 
+      left: 0; 
+    }
+
+    .brand { 
+      font-size: 2rem; 
+      font-weight: bold; 
+      margin-bottom: 2rem; 
+      text-align: center; 
+    }
+
+    .nav a {
+      display: block;
+      font-weight: bold;
+      text-decoration: none;
+      color: #000;
+      margin-bottom: 1.2rem;
+      padding: 0.75rem 1rem;
+    }
+    .nav a.active { 
+      background-color: #c96f3b; 
+      color: white; }
+
+    .main-content {
+      flex-grow: 1;
+      padding: 1.5rem;
+      transition: margin-left 0.3s ease;
+      margin-left: 0;
+    }
+    .container.sidebar-open .main-content { 
+      margin-left: 250px; }
+
+    .dashboard-container {
+      background-color: rgba(255, 255, 255, 0.9); 
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      max-width: 1200px;
+      margin: 2rem auto;
+    }
+
+    .dashboard-section { max-width: 1000px; margin: 0 auto; }
+
+    .dashboard-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+    }
+
+    .card {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-radius: 10px;
+      color: white;
+      width: 220px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover { transform: translateY(-5px); }
+    .card-icon { font-size: 2rem; margin-right: 1rem; }
+    .card-info h3, .card-info p { margin: 0; }
+
+    .card-blue { background-color: #3498db; }
+    .card-green { background-color: #2ecc71; }
+    .card-orange { background-color: #f39c12; }
+    .card-red { background-color: #e74c3c; }
+
+    .buttons {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .buttons button {
+      background-color: #c96f3b;
+      color: white;
+      padding: 10px 20px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .buttons button:hover { background-color: #a5572f; }
+
+    #pendingOrders {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 2rem;
+    }
+
+    #pendingOrders li { margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="menu-icon" class="menu-icon">&#9776;</div>
+    <div class="login"><span>&#128100;</span> LOG IN</div>
+  </header>
+
+  <div class="container">
+    <aside id="sidebar" class="sidebar">
+      <div class="brand">TIMI</div>
+      <nav class="nav">
+        <a href="editprofile.html">USER PROFILE</a>
+        <a href="product.html">PRODUCT</a>
+        <a href="order.html">ORDER</a>
+        <a href="payment.html">PAYMENT</a>
+        <a href="delivery.html">DELIVERY</a>
+        <a href="reviews&rating.html">REVIEW & RATING</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="dashboard-container">
+        <div class="dashboard-section">
+          <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 1rem;">Dashboard Overview</h2>
+          <div class="dashboard-cards">
+            <div class="card card-blue">
+              <div class="card-icon">💬</div>
+              <div class="card-info"><h3 id="reviewCount">0</h3><p>Reviews</p></div>
+            </div>
+            <div class="card card-green">
+              <div class="card-icon">👕</div>
+              <div class="card-info"><h3 id="soldCount">0</h3><p>Sold Out</p></div>
+            </div>
+            <div class="card card-orange">
+              <div class="card-icon">🛒</div>
+              <div class="card-info"><h3 id="orderCount">0</h3><p>New Orders</p></div>
+            </div>
+            <div class="card card-red">
+              <div class="card-icon">🎫</div>
+              <div class="card-info"><h3 id="salesCount">0</h3><p>Sales</p></div>
+            </div>
+          </div>
+
+          <div class="buttons">
+            <button onclick="filterSales('week')">Week</button>
+            <button onclick="filterSales('month')">Month</button>
+            <button onclick="filterSales('year')">Year</button>
+          </div>
+
+          <canvas id="salesChart" height="100"></canvas>
+
+          <div id="pendingOrders">
+            <h3>Pending Orders</h3>
+            <ul id="orderList"></ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const menuIcon = document.getElementById("menu-icon");
+    const sidebar = document.getElementById("sidebar");
+
+    menuIcon.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
+      document.querySelector(".container").classList.toggle("sidebar-open");
+    });
+
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    let salesChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+        datasets: [{
+          label: 'Monthly Sales (RM)',
+          data: Array(12).fill(0),
+          backgroundColor: 'rgba(255, 159, 64, 0.2)',
+          borderColor: '#c96f3b',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    function filterSales(type) {
+      alert(`Sales view filtered by ${type}`);
+    }
+
+    function updateChartData(orders) {
+      const monthlySales = Array(12).fill(0);
+      let pending = 0, completed = 0, sold = 0;
+
+      orders.forEach(order => {
+        const date = new Date(order.date);
+        const month = date.getMonth();
+        monthlySales[month] += parseFloat(order.total || 0);
+
+        if (order.status !== "Completed") pending++;
+        if (order.status === "Completed") completed++;
+        if (order.productStatus === "Sold Out") sold++;
+      });
+
+      salesChart.data.datasets[0].data = monthlySales;
+      salesChart.update();
+
+      document.getElementById("orderCount").textContent = pending;
+      document.getElementById("salesCount").textContent = completed;
+      document.getElementById("soldCount").textContent = sold;
+    }
+
+    function showPendingOrders(orders) {
+      const orderList = document.getElementById("orderList");
+      orderList.innerHTML = "";
+
+      orders.filter(o => o.status !== "Completed").forEach(order => {
+        const li = document.createElement("li");
+        li.textContent = `Order #${order.id} - ${order.customer} (${order.status})`;
+        orderList.appendChild(li);
+      });
+    }
+
+    onValue(ref(db, "orders"), snapshot => {
+      const orders = snapshot.exists() ? Object.values(snapshot.val()) : [];
+      updateChartData(orders);
+      showPendingOrders(orders);
+    });
+  </script>
+</body>
+</html>

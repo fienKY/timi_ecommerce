@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - TIMI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff7f0;
+      padding: 30px;
+    }
+
+    .settings-container {
+      max-width: 700px;
+      margin: auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 6px;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .address-list {
+      margin-top: 20px;
+    }
+
+    .address-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .address-item span {
+      display: block;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 10px 18px;
+      border: none;
+      background-color: black;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #add-address {
+      background-color: #555;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-container">
+    <h2>👤 Settings</h2>
+    <label>Name</label>
+    <input type="text" id="name" placeholder="Your name" />
+
+    <label>Email</label>
+    <input type="email" id="email" placeholder="Email" />
+
+    <label>Password</label>
+    <div class="password-wrapper">
+      <input type="password" id="password" placeholder="Enter new password" />
+      <button class="toggle-password" onclick="togglePassword()">👁️</button>
+    </div>
+
+    <div class="address-list" id="address-list"></div>
+    <button id="add-address">+ New Address</button>
+
+    <div class="button-row">
+      <button onclick="saveSettings()">Done</button>
+      <button onclick="window.location.href='cart.html'">Back to Cart</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, updateEmail, updatePassword } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDi38gj03rQeoXqilbjaF43rgPAL2vYtwU",
+      authDomain: "timi-ecommerce-v2.firebaseapp.com",
+      projectId: "timi-ecommerce-v2",
+      storageBucket: "timi-ecommerce-v2.appspot.com",
+      messagingSenderId: "463474123257",
+      appId: "1:463474123257:web:033f324ef4ade6de379d28"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        const profile = JSON.parse(localStorage.getItem('userProfile')) || {};
+        document.getElementById('name').value = profile.name || '';
+        document.getElementById('email').value = user.email || '';
+        loadAddresses();
+      } else {
+        alert("Please log in first.");
+        window.location.href = 'login.html';
+      }
+    });
+
+    window.saveSettings = async function () {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const addressData = JSON.parse(localStorage.getItem('userAddresses')) || [];
+
+      try {
+        if (currentUser && email !== currentUser.email) {
+          await updateEmail(currentUser, email);
+        }
+        if (password.length > 0) {
+          await updatePassword(currentUser, password);
+        }
+
+        localStorage.setItem('userProfile', JSON.stringify({ name }));
+        localStorage.setItem('userAddresses', JSON.stringify(addressData));
+
+        alert("Settings saved successfully!");
+        window.location.href = "index.html";
+      } catch (err) {
+        alert("Failed to update account: " + err.message);
+      }
+    }
+
+    window.togglePassword = function () {
+      const input = document.getElementById("password");
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    function loadAddresses() {
+      const list = document.getElementById("address-list");
+      list.innerHTML = "";
+      const addresses = JSON.parse(localStorage.getItem("userAddresses")) || [];
+      addresses.forEach((addr, index) => {
+        const div = document.createElement("div");
+        div.className = "address-item";
+        div.innerHTML = `
+          <span><strong>${addr.name}</strong></span>
+          <span>${addr.phone}</span>
+          <span>${addr.address}</span>
+          <span><em>${addr.notes}</em></span>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    document.getElementById("add-address").addEventListener("click", () => {
+      const name = prompt("Name:");
+      const phone = prompt("Phone number:");
+      const address = prompt("Address:");
+      const notes = prompt("Notes (e.g., Home, Work):");
+      if (!name || !phone || !address) return alert("Please fill in all required fields.");
+
+      const addresses = JSON.parse(localStorage.getItem("userAddresses")) || [];
+      addresses.push({ name, phone, address, notes });
+      localStorage.setItem("userAddresses", JSON.stringify(addresses));
+      loadAddresses();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Track Orders - TIMI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      background: #fff7f0;
+    }
+    h1 {
+      text-align: center;
+    }
+    .order-card {
+      background: #fff;
+      border: 1px solid #eee;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 800px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .order-card h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    .order-items {
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+    .order-items li {
+      font-size: 14px;
+    }
+    .status {
+      font-weight: bold;
+    }
+    .btn-group {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: black;
+      color: white;
+      padding: 6px 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .review-form {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #ccc;
+    }
+    textarea, select {
+      width: 100%;
+      margin-top: 6px;
+      padding: 8px;
+      font-size: 14px;
+    }
+    .unpaid-msg {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Orders 📦</h1>
+  <div id="order-list">Loading your orders...</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDi38gj03rQeoXqilbjaF43rgPAL2vYtwU",
+      authDomain: "timi-ecommerce-v2.firebaseapp.com",
+      projectId: "timi-ecommerce-v2",
+      storageBucket: "timi-ecommerce-v2.appspot.com",
+      messagingSenderId: "463474123257",
+      appId: "1:463474123257:web:033f324ef4ade6de379d28"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const orderList = document.getElementById("order-list");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        orderList.innerHTML = `<p>Please <a href="login.html">log in</a> to view your orders.</p>`;
+        return;
+      }
+
+      const q = query(collection(db, "orders"), where("email", "==", user.email));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        orderList.innerHTML = `<p>No orders found.</p>`;
+        return;
+      }
+
+      let html = "";
+      let unpaidCount = 0;
+
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const docId = docSnap.id;
+
+        // ❌ Skip cancelled orders
+        if (data.status.delivery === "Cancelled") return;
+
+        // Show unpaid orders
+        if (data.status.payment !== "Paid") {
+          unpaidCount++;
+          html += `
+            <div class="order-card" id="order-${docId}">
+              <h3>Order ID: ${data.orderId}</h3>
+              <p><strong>Status:</strong><br>
+                Payment: <span class="status" style="color:red;">${data.status.payment}</span><br>
+                Delivery: <span class="status">${data.status.delivery}</span>
+              </p>
+              <p>This order is still unpaid. Please complete your payment to proceed.</p>
+              <div class="btn-group">
+                <button class="btn" onclick="continuePayment('${data.orderId}')">Continue Payment</button>
+                <button class="btn" onclick="cancelOrder('${docId}')">Cancel Order</button>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        // Show paid orders
+        html += `
+          <div class="order-card" id="order-${docId}">
+            <h3>Order ID: ${data.orderId}</h3>
+            <p><strong>Name:</strong> ${data.customerName}</p>
+            <p><strong>Phone:</strong> ${data.customerPhone}</p>
+            <p><strong>Address:</strong> ${data.customerAddress}</p>
+            <p><strong>Status:</strong><br>
+              Payment: <span class="status">${data.status.payment}</span><br>
+              Delivery: <span class="status" id="status-${docId}">${data.status.delivery}</span>
+            </p>
+            <ul class="order-items">
+              ${data.products.map(item => `<li>${item.name} (${item.quantity}x) - RM ${item.price.toFixed(2)}</li>`).join('')}
+            </ul>
+            <p><strong>Total:</strong> RM ${data.total}</p>
+
+            <div class="btn-group">
+              <button class="btn" onclick="markDelivered('${docId}')">Order Received</button>
+              <button class="btn" onclick="requestRefund('${data.orderId}')">Refund</button>
+            </div>
+
+            <div class="review-form" id="review-${docId}" style="display:none;">
+              <label for="rating-${docId}">Rating:</label>
+              <select id="rating-${docId}">
+                <option value="5">⭐⭐⭐⭐⭐ - Excellent</option>
+                <option value="4">⭐⭐⭐⭐ - Good</option>
+                <option value="3">⭐⭐⭐ - Okay</option>
+                <option value="2">⭐⭐ - Bad</option>
+                <option value="1">⭐ - Terrible</option>
+              </select>
+              <label for="comment-${docId}">Review:</label>
+              <textarea id="comment-${docId}" rows="3" placeholder="Share your experience..."></textarea>
+              <button class="btn" onclick="submitReview('${docId}')">Submit Review</button>
+            </div>
+          </div>
+        `;
+      });
+
+      if (unpaidCount > 0) {
+        html += `<p class="unpaid-msg">You have ${unpaidCount} unpaid order(s). Please complete payment to track them.</p>`;
+      }
+
+      orderList.innerHTML = html || `<p>No paid orders found.</p>`;
+    });
+
+    // Order received (update delivery status + show review)
+    window.markDelivered = async function(docId) {
+      const statusSpan = document.getElementById("status-" + docId);
+      const reviewBox = document.getElementById("review-" + docId);
+      const orderRef = doc(db, "orders", docId);
+      await updateDoc(orderRef, {
+        "status.delivery": "Delivered"
+      });
+      statusSpan.textContent = "Delivered";
+      reviewBox.style.display = "block";
+    };
+
+    // Review submitted
+    window.submitReview = function(docId) {
+      const rating = document.getElementById("rating-" + docId).value;
+      const comment = document.getElementById("comment-" + docId).value;
+      alert("Thanks for your review!\nRating: " + rating + "\nComment: " + comment);
+      document.getElementById("review-" + docId).style.display = "none";
+    };
+
+    // Refund via WhatsApp
+    window.requestRefund = function(orderId) {
+      const msg = encodeURIComponent(`Hi admin, I want to request a refund for Order ID: ${orderId}`);
+      const phone = "60136836412";
+      window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+    };
+
+    // Continue payment (redirect to ToyyibPay page – maybe link stored?)
+    window.continuePayment = function(orderId) {
+      alert("Redirecting to payment for order: " + orderId);
+      // Replace with real logic if you have saved ToyyibPay BillCode in Firestore
+      // For now, maybe redirect to `payment.html?orderId=TMI1234`
+      window.location.href = `payment.html?orderId=${orderId}`;
+    };
+
+    // Cancel order
+    window.cancelOrder = async function(docId) {
+      const confirmCancel = confirm("Are you sure you want to cancel this order?");
+      if (!confirmCancel) return;
+
+      const orderRef = doc(db, "orders", docId);
+      await updateDoc(orderRef, {
+        "status.delivery": "Cancelled"
+      });
+      document.getElementById("order-" + docId).remove();
+    };
+  </script>
+</body>
+</html>

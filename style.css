@@ -1,0 +1,308 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #fff7f0;
+  color: #222;
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+header {
+  background-color: #121212;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+header h1 {
+  font-weight: 700;
+  letter-spacing: 3px;
+  font-size: 1.5rem;
+}
+
+nav ul {
+  display: flex;
+  gap: 1.75rem;
+}
+
+nav ul li {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+nav ul li a {
+  padding: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+nav ul li a:hover,
+nav ul li a:focus {
+  color: #ff6f61;
+}
+
+main {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.hero {
+  background: url(images/backgroundTimi.jpg) no-repeat center center/cover;
+  border-radius: 12px;
+  color: white;
+  padding: 6rem 2rem;
+  text-align: center;
+  box-shadow: inset 0 0 0 2000px rgba(18, 18, 18, 0.45);
+  margin-bottom: 3rem;
+}
+
+.hero h2 {
+  font-size: 2.75rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  font-weight: 400;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.featured-products {
+  text-align: center;
+}
+
+.featured-products h2 {
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #121212;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
+}
+
+.product-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.14);
+}
+
+.product-image {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+}
+
+.product-info {
+  padding: 1rem 1.25rem 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: #121212;
+}
+
+.product-price {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #ff6f61;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  background-color: #ff6f61;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 12px 0;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover,
+.btn:focus {
+  background-color: #e55a4e;
+}
+
+footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  background-color: #121212;
+  color: #aaa;
+  font-size: 0.875rem;
+}
+
+.toast {
+  visibility: hidden;
+  min-width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 40px;
+  font-size: 1rem;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.4s, visibility 0.4s;
+}
+.toast.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Cart and Quantity Controls */
+.cart-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-title {
+  font-weight: bold;
+}
+
+.item-price {
+  color: #ff6f61;
+}
+
+.empty {
+  text-align: center;
+  color: #999;
+  font-size: 1.1rem;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.quantity-control button {
+  padding: 5px 10px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.quantity-control input {
+  width: 40px;
+  text-align: center;
+  font-size: 16px;
+}
+
+/* Contact Form Styling */
+.contact-form {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+  padding: 2rem 1.5rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #ff6f61;
+  outline: none;
+}
+
+/* Responsive for smaller phones */
+@media (max-width: 400px) {
+  header h1 {
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+
+  .hero h2 {
+    font-size: 2rem;
+  }
+}
